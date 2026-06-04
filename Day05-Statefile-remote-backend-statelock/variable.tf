@@ -10,3 +10,8 @@ variable "tagname" {
   description = "Name of the instance"
   default = ""
 }
+variable "tagname02" {
+  description = "Name of the instance"
+  default = ""
+}
+

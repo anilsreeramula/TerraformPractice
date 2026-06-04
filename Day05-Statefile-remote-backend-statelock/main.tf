@@ -17,6 +17,14 @@ resource "aws_vpc" "vpc" {
     cidr_block = "192.0.0.0/16"
 }
     
+resource "aws_instance" "name02" {
+    ami           = var.aminame
+    instance_type = var.instancetype
+    tags = {
+        Name = var.tagname02
+    }
+}
+  
 
 
 

@@ -1,0 +1,120 @@
+# Create a VPC and a public and private subnet in AWS using Terraform
+resource "aws_vpc" "Dev-VPC" {
+  cidr_block = "192.0.0.0/16"
+  tags = {
+    Name = "Dev-VPC"
+        }
+}
+resource "aws_subnet" "Dev-publicSubnet" {
+  vpc_id            = aws_vpc.Dev-VPC.id
+  cidr_block        = "192.0.0.0/24"
+  availability_zone = "ca-central-1a"
+  tags = {
+    Name = "Dev-publicSubnet"
+  }
+}
+resource "aws_subnet" "Dev-privateSubnet" {
+  vpc_id            = aws_vpc.Dev-VPC.id
+  cidr_block        = "192.0.1.0/24"
+  availability_zone = "ca-central-1b"
+  tags = {
+    Name = "Dev-privateSubnet"
+  }
+}   
+
+resource "aws_internet_gateway" "Dev-IGW" {
+  vpc_id = aws_vpc.Dev-VPC.id
+  tags = {
+    Name = "Dev-IGW"
+  }
+}
+
+resource "aws_route_table" "Dev-publicRT" {
+  vpc_id = aws_vpc.Dev-VPC.id
+  tags = {
+    Name = "Dev-publicRouteTable"
+  }
+    route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.Dev-IGW.id
+  } 
+}
+resource "aws_route_table_association" "Dev-publicRT-association" {
+  subnet_id      = aws_subnet.Dev-publicSubnet.id
+  route_table_id = aws_route_table.Dev-publicRT.id
+}
+
+
+#create a NAT gateway in the public subnet to allow instances in the private subnet to access the internet, and associate it with an Elastic IP address
+resource "aws_nat_gateway" "Dev-NATGW" {
+  vpc_id = aws_vpc.Dev-VPC.id
+  tags = {
+    Name = "Dev-NATGW"
+  }
+}
+
+# Create a private route table and associate it with the private subnet, and add a route to the NAT gateway for internet access from the private subnet
+resource "aws_route_table" "Dev-privateRT" {
+  vpc_id = aws_vpc.Dev-VPC.id
+  tags = {
+    Name = "Dev-privateRouteTable"
+  }
+    route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.Dev-NATGW.id
+  } 
+}
+
+# Associating the subnet with the private route table
+
+resource "aws_route_table_association" "Dev-privateRT-association"{
+  subnet_id      = aws_subnet.Dev-privateSubnet.id
+  route_table_id = aws_route_table.Dev-privateRT.id
+}
+
+#create a security group that allows SSH and HTTP traffic to the public subnet and allows all outbound traffic from the private subnet
+
+resource "aws_security_group" "Dev-SG" {
+  name        = "Dev-SG"
+  description = "Allow SSH and HTTP traffic"
+  vpc_id      = aws_vpc.Dev-VPC.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] 
+    }
+    ingress {   
+    from_port   = 80
+    to_port     = 80    
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] 
+    }   
+    egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"] 
+    }   
+}
+# Create an EC2 instance in the public subnet and associate it with the security group
+resource "aws_instance" "Dev-appserver01" {
+    ami           = "ami-06445ac85e0d277a9"
+    instance_type = "t3.micro"
+    subnet_id     = aws_subnet.Dev-publicSubnet.id
+    security_groups = [aws_security_group.Dev-SG.name]
+    tags = {
+        Name = "Dev-appserver01"
+        }
+    }
+# Create an EC2 instance in the private subnet and associate it with the security group
+resource "aws_instance" "Dev-appserver02" {
+    ami           = "ami-06445ac85e0d277a9"
+    instance_type = "t3.small"
+    subnet_id     = aws_subnet.Dev-privateSubnet.id
+    security_groups = [aws_security_group.Dev-SG.name]
+    tags = {
+        Name = "Dev-appserver02"
+        }
+    }

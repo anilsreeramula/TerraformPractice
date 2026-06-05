@@ -7,3 +7,6 @@ variable "instancetype" {
 variable "tagname" {
     default = "my_instance"
 }
+variable "tagname02" {
+    default = "my_appserver01"
+}

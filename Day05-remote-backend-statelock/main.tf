@@ -14,7 +14,6 @@ resource "aws_subnet" "my_subnet02" {
     }
 }
 
-<<<<<<< Updated upstream
 resource "aws_subnet" "my_subnet01" {
   vpc_id     = aws_vpc.my_vpc.id
   cidr_block = "10.0.1.0/24"
@@ -22,8 +21,6 @@ resource "aws_subnet" "my_subnet01" {
         Name = "my_subnet1"
     }
 }
-=======
 
 
->>>>>>> Stashed changes
 

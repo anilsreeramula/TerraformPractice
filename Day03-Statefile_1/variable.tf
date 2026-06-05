@@ -4,9 +4,9 @@ variable "aminame" {
 }
 variable "instancetype" {
   description = "Type of the instance"
-  default = "t3.small"
+  default = ""
 }
 variable "tagname" {
   description = "Name of the instance"
-  default = "my_auto_instance"
+  default = ""
 }

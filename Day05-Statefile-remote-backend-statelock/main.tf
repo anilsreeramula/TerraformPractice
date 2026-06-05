@@ -1,8 +1,3 @@
-resource "aws_s3_bucket" "bucket" {
-    bucket = "paras-statelock-bucket"
-    region         = "ca-central-1"
-
-}
 resource "aws_instance" "name" {
     ami           = var.aminame
     instance_type = var.instancetype
@@ -18,6 +13,7 @@ resource "aws_vpc" "vpc" {
 }
     
 
-
-
-
+resource "aws_subnet" "subnet" {
+    vpc_id = aws_vpc.vpc.id
+    cidr_block = "192.0.1.0/24"
+}

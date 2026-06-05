@@ -1,15 +1,7 @@
-resource "aws_instance" "linux_instance" {
-    ami           = var.aminame
-    instance_type = var.instancetype
+resource "aws_vpc" "my_vpc" {
+  cidr_block = "10.0.0.0/16"
     tags = {
-        Name = var.tagname
+        Name = "my_vpc"
     }
-}
 
-resource "aws_instance" "linux_Server" {
-    ami           = var.aminame
-    instance_type = var.instancetype
-    tags = {
-        Name = var.tagname02
-    }
 }

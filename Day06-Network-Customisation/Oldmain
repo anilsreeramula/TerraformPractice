@@ -46,6 +46,7 @@ resource "aws_route_table_association" "Dev-publicRT-association" {
 
 
 #create a NAT gateway in the public subnet to allow instances in the private subnet to access the internet, and associate it with an Elastic IP address
+
 resource "aws_nat_gateway" "Dev-NATGW" {
   vpc_id = aws_vpc.Dev-VPC.id
   tags = {

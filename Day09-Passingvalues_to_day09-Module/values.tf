@@ -5,6 +5,7 @@ module "local_instance" {
   ami_id               = "ami-06445ac85e0d277a9"
   instance_type        = "t3.micro"
   
-  #ignoring other variables for now
+
+#ignoring other variables for now
 
 }   

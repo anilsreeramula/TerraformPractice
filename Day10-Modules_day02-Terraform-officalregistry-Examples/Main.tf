@@ -11,3 +11,4 @@ module "s3_bucket" {
     enabled = var.versioning.enabled
   }
 }
+

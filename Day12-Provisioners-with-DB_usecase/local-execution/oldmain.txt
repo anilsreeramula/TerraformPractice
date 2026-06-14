@@ -1,0 +1,40 @@
+
+# Create the RDS instance
+resource "aws_db_instance" "mysql_rds" {
+  identifier              = "mysqldb"
+  engine                  = "mysql"
+  engine_version          = "8.0"
+  instance_class          = "db.t3.micro"
+  username                = "admin"
+  password                = "Cloud123"
+  db_name                 = "localDB"
+  allocated_storage       = 20
+  skip_final_snapshot     = true
+  publicly_accessible     = true
+}
+
+# Use null_resource to execute the SQL script from your local machine
+resource "null_resource" "local_sql_exec" {
+  depends_on = [aws_db_instance.mysql_rds]
+ 
+  provisioner "local-exec" {
+
+  #interpreter = ["cmd", "/C"]
+   command = <<EOT 
+   mysql -h ${aws_db_instance.mysql_rds.address} -P 3306 -u admin -pCloud123 < test.sql 
+   EOT
+
+ # command = "timeout /t 60 && \"C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysql.exe\" -h ${aws_db_instance.mysql_rds.address} -u admin -pCloud123 localDB < test.sql"
+  }
+ 
+  
+  #provisioner "local-exec" {
+
+   # command = "\"C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysql.exe\" -h ${aws_db_instance.mysql_rds.address} -u admin -pCloud123 localDB < test.sql"
+    #command = "mysql -h ${aws_db_instance.mysql_rds.address} -u admin -pCloud123 localDB < test.sql"
+  #}
+
+  triggers = {
+  always_run = timestamp()
+  }
+}
